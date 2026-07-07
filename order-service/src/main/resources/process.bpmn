@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  id="Definitions_1"
+  targetNamespace="http://bpmn.io/schema/bpmn"
+  exporter="Camunda Modeler"
+  exporterVersion="5.0.0">
+  <bpmn:process id="order-processing" name="Order Processing System" isExecutable="true" camunda:historyTimeToLive="P30D">
+    <bpmn:startEvent id="StartEvent_OrderPlaced" name="Order Placed">
+      <bpmn:outgoing>Flow_StartToUpdatePay</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:sequenceFlow id="Flow_StartToUpdatePay" sourceRef="StartEvent_OrderPlaced" targetRef="Task_UpdateStatusPaying" />
+    
+    <bpmn:serviceTask id="Task_UpdateStatusPaying" name="Update Status: PAYMENT_PROCESSING" camunda:expression="${orderService.updateStatus(orderId, &#39;PAYMENT_PROCESSING&#39;)}">
+      <bpmn:incoming>Flow_StartToUpdatePay</bpmn:incoming>
+      <bpmn:outgoing>Flow_UpdatePayToPay</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_UpdatePayToPay" sourceRef="Task_UpdateStatusPaying" targetRef="Task_PaymentProcessing" />
+    
+    <bpmn:serviceTask id="Task_PaymentProcessing" name="Payment Processing" camunda:type="external" camunda:topic="payment-processing">
+      <bpmn:incoming>Flow_UpdatePayToPay</bpmn:incoming>
+      <bpmn:outgoing>Flow_PayToGateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_PayToGateway" sourceRef="Task_PaymentProcessing" targetRef="Gateway_PaymentCheck" />
+    
+    <bpmn:exclusiveGateway id="Gateway_PaymentCheck" name="Payment Success?">
+      <bpmn:incoming>Flow_PayToGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_PaymentSucceeded</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PaymentFailed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:sequenceFlow id="Flow_PaymentSucceeded" name="Yes" sourceRef="Gateway_PaymentCheck" targetRef="Task_UpdateStatusPreparing">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${paymentSuccess == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    
+    <bpmn:sequenceFlow id="Flow_PaymentFailed" name="No" sourceRef="Gateway_PaymentCheck" targetRef="Task_UpdateStatusCancelled">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${paymentSuccess == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    
+    <bpmn:serviceTask id="Task_UpdateStatusCancelled" name="Update Status: CANCELLED" camunda:expression="${orderService.updateStatus(orderId, &#39;CANCELLED&#39;)}">
+      <bpmn:incoming>Flow_PaymentFailed</bpmn:incoming>
+      <bpmn:outgoing>Flow_CancelledToEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_CancelledToEnd" sourceRef="Task_UpdateStatusCancelled" targetRef="EndEvent_Cancelled" />
+    
+    <bpmn:endEvent id="EndEvent_Cancelled" name="Order Cancelled">
+      <bpmn:incoming>Flow_CancelledToEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:serviceTask id="Task_UpdateStatusPreparing" name="Update Status: KITCHEN_PREP" camunda:expression="${orderService.updateStatus(orderId, &#39;KITCHEN_PREP&#39;)}">
+      <bpmn:incoming>Flow_PaymentSucceeded</bpmn:incoming>
+      <bpmn:outgoing>Flow_PreparingToKitchen</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_PreparingToKitchen" sourceRef="Task_UpdateStatusPreparing" targetRef="Task_KitchenPrep" />
+    
+    <bpmn:serviceTask id="Task_KitchenPrep" name="Kitchen Preparation" camunda:type="external" camunda:topic="kitchen-preparation">
+      <bpmn:incoming>Flow_PreparingToKitchen</bpmn:incoming>
+      <bpmn:outgoing>Flow_KitchenToUpdateDelivering</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_KitchenToUpdateDelivering" sourceRef="Task_KitchenPrep" targetRef="Task_UpdateStatusDelivering" />
+    
+    <bpmn:serviceTask id="Task_UpdateStatusDelivering" name="Update Status: OUT_FOR_DELIVERY" camunda:expression="${orderService.updateStatus(orderId, &#39;OUT_FOR_DELIVERY&#39;)}">
+      <bpmn:incoming>Flow_KitchenToUpdateDelivering</bpmn:incoming>
+      <bpmn:outgoing>Flow_DeliveringToDelivery</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_DeliveringToDelivery" sourceRef="Task_UpdateStatusDelivering" targetRef="Task_Delivery" />
+    
+    <bpmn:serviceTask id="Task_Delivery" name="Delivery Service" camunda:type="external" camunda:topic="delivery-service">
+      <bpmn:incoming>Flow_DeliveringToDelivery</bpmn:incoming>
+      <bpmn:outgoing>Flow_DeliveryToUpdateDelivered</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_DeliveryToUpdateDelivered" sourceRef="Task_Delivery" targetRef="Task_UpdateStatusDelivered" />
+    
+    <bpmn:serviceTask id="Task_UpdateStatusDelivered" name="Update Status: DELIVERED" camunda:expression="${orderService.updateStatus(orderId, &#39;DELIVERED&#39;)}">
+      <bpmn:incoming>Flow_DeliveryToUpdateDelivered</bpmn:incoming>
+      <bpmn:outgoing>Flow_DeliveredToEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:sequenceFlow id="Flow_DeliveredToEnd" sourceRef="Task_UpdateStatusDelivered" targetRef="EndEvent_Delivered" />
+    
+    <bpmn:endEvent id="EndEvent_Delivered" name="Order Delivered">
+      <bpmn:incoming>Flow_DeliveredToEnd</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="order-processing">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_OrderPlaced">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_UpdateStatusPaying_di" bpmnElement="Task_UpdateStatusPaying">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_PaymentProcessing_di" bpmnElement="Task_PaymentProcessing">
+        <dc:Bounds x="400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PaymentCheck_di" bpmnElement="Gateway_PaymentCheck" isMarkerVisible="true">
+        <dc:Bounds x="565" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_UpdateStatusCancelled_di" bpmnElement="Task_UpdateStatusCancelled">
+        <dc:Bounds x="680" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Cancelled_di" bpmnElement="EndEvent_Cancelled">
+        <dc:Bounds x="842" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_UpdateStatusPreparing_di" bpmnElement="Task_UpdateStatusPreparing">
+        <dc:Bounds x="680" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_KitchenPrep_di" bpmnElement="Task_KitchenPrep">
+        <dc:Bounds x="840" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_UpdateStatusDelivering_di" bpmnElement="Task_UpdateStatusDelivering">
+        <dc:Bounds x="1000" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_Delivery_di" bpmnElement="Task_Delivery">
+        <dc:Bounds x="1160" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Task_UpdateStatusDelivered_di" bpmnElement="Task_UpdateStatusDelivered">
+        <dc:Bounds x="1320" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Delivered_di" bpmnElement="EndEvent_Delivered">
+        <dc:Bounds x="1482" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
