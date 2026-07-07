@@ -1,55 +1,58 @@
 # 🍔 Online Food Order Processing System
 
-A **Microservices-based Online Food Order Processing System** developed using **Java Spring Boot**, **ReactJS**, **MySQL**, and **Apache ActiveMQ**. The application demonstrates asynchronous communication between independent microservices while processing customer orders from placement to delivery.
+A **Microservices-based Online Food Order Processing System** built using **Java Spring Boot, ReactJS, MySQL, Apache ActiveMQ, and Camunda BPMN**. The project demonstrates a real-world food ordering workflow using REST APIs, asynchronous messaging, and BPMN-based business process modeling.
 
-This project was developed as a **Java Full Stack Take-Home Assessment** to showcase backend development, REST APIs, event-driven architecture, and frontend integration.
-
----
-
-# 🚀 Features
-
-- Place food orders through a React frontend
-- Order management using Spring Boot
-- Payment processing workflow
-- Kitchen order preparation
-- Delivery assignment workflow
-- RESTful APIs
-- Event-driven communication using ActiveMQ
-- MySQL database integration
-- Microservices architecture
+This project was developed as a **Java Full Stack Take-Home Assessment** to showcase backend development, frontend integration, workflow orchestration, and microservices architecture.
 
 ---
 
-# 🏗️ System Architecture
+## 🚀 Features
+
+- 🍽️ Place food orders through a React frontend
+- 📦 Order management using Spring Boot
+- 💳 Payment processing workflow
+- 👨‍🍳 Kitchen order preparation
+- 🚚 Delivery assignment and completion
+- 🔄 Event-driven communication using Apache ActiveMQ
+- 📋 Business workflow modeled using Camunda BPMN
+- 🗄️ MySQL database integration
+- 🌐 RESTful API architecture
+- 🧩 Independent microservices
+
+---
+
+# 🏗️ Architecture
 
 ```
                   React + Vite Frontend
                            │
                      REST API Calls
                            │
-                  ┌─────────────────┐
-                  │ Order Service   │
-                  └─────────────────┘
+                  ┌──────────────────┐
+                  │   Order Service  │
+                  └──────────────────┘
+                           │
+                  Camunda BPMN Process
                            │
                      ActiveMQ Queue
                            │
-                  ┌─────────────────┐
-                  │ Payment Service │
-                  └─────────────────┘
+                  ┌──────────────────┐
+                  │ Payment Service  │
+                  └──────────────────┘
                            │
                      ActiveMQ Queue
                            │
-                  ┌─────────────────┐
-                  │ Kitchen Service │
-                  └─────────────────┘
+                  ┌──────────────────┐
+                  │ Kitchen Service  │
+                  └──────────────────┘
                            │
                      ActiveMQ Queue
                            │
-                  ┌─────────────────┐
-                  │ Delivery Service│
-                  └─────────────────┘
+                  ┌──────────────────┐
+                  │ Delivery Service │
+                  └──────────────────┘
                            │
-                        MySQL
+                         MySQL
 ```
 
 ---
@@ -69,16 +72,16 @@ Online-Food-Order-Processing-System
 │
 ├── delivery-service
 │
-├── database_design.md
-│
 ├── api_lld.md
+│
+├── database_design.md
 │
 └── README.md
 ```
 
 ---
 
-# 🛠️ Tech Stack
+# 🛠️ Technology Stack
 
 ## Frontend
 
@@ -87,6 +90,9 @@ Online-Food-Order-Processing-System
 - HTML5
 - CSS3
 - JavaScript
+- Axios
+
+---
 
 ## Backend
 
@@ -95,35 +101,49 @@ Online-Food-Order-Processing-System
 - Spring Web
 - Spring Data JPA
 - Maven
-- REST API
+- REST APIs
+
+---
+
+## Workflow
+
+- Camunda BPMN
+- BPMN 2.0 Process Model
+
+---
 
 ## Messaging
 
 - Apache ActiveMQ
 
+---
+
 ## Database
 
 - MySQL
+
+---
 
 ## Tools
 
 - Eclipse / STS
 - VS Code
-- Postman
 - Git
 - GitHub
+- Postman
 
 ---
 
-# ⚙️ Microservices
+# 🧩 Microservices
 
 ## 📦 Order Service
 
 Responsibilities
 
-- Create Orders
-- Store Orders
-- Publish Order Events
+- Create customer orders
+- Store order information
+- Start workflow
+- Publish order events
 
 ---
 
@@ -131,9 +151,9 @@ Responsibilities
 
 Responsibilities
 
-- Receive Order Messages
-- Process Payments
-- Publish Payment Status
+- Receive order events
+- Process payment
+- Publish payment status
 
 ---
 
@@ -141,9 +161,9 @@ Responsibilities
 
 Responsibilities
 
-- Receive Paid Orders
-- Prepare Food
-- Notify Delivery Service
+- Receive confirmed orders
+- Prepare food
+- Notify delivery service
 
 ---
 
@@ -151,25 +171,70 @@ Responsibilities
 
 Responsibilities
 
-- Assign Delivery Partner
-- Update Delivery Status
-- Complete Delivery
+- Assign delivery partner
+- Update delivery status
+- Complete order delivery
 
 ---
 
-# 🔄 Order Workflow
+# 🔄 Business Workflow (Camunda BPMN)
 
-1. Customer places an order.
-2. Order Service saves the order.
-3. Order Service publishes an event to ActiveMQ.
-4. Payment Service processes payment.
-5. Kitchen Service prepares the order.
-6. Delivery Service dispatches the order.
-7. Customer receives the completed order.
+The application models the food ordering process using a **Camunda BPMN workflow**.
+
+The workflow includes:
+
+1. Customer places an order
+2. Order is created
+3. Payment is processed
+4. Kitchen prepares the food
+5. Delivery is assigned
+6. Order is delivered successfully
+
+BPMN Process File:
+
+```
+order-service/src/main/resources/process.bpmn
+```
 
 ---
 
-# 📡 REST APIs
+# 🔄 Order Flow
+
+```
+Customer
+
+    │
+
+Place Order
+
+    │
+
+Order Service
+
+    │
+
+Camunda BPMN
+
+    │
+
+Payment Service
+
+    │
+
+Kitchen Service
+
+    │
+
+Delivery Service
+
+    │
+
+Customer Receives Food
+```
+
+---
+
+# 📡 REST API
 
 ## Order Service
 
@@ -213,11 +278,18 @@ Responsibilities
 
 # 🗄️ Database
 
-The project uses **MySQL** for persistent storage.
+The application stores data in **MySQL**.
 
-Database schema and table relationships are documented in:
+The database includes:
 
-- database_design.md
+- Orders
+- Payments
+- Kitchen Tickets
+- Delivery Details
+
+Database documentation:
+
+- `database_design.md`
 
 ---
 
@@ -231,11 +303,9 @@ git clone https://github.com/Shanthoshg/Online-Food-Order-Processing-System.git
 
 ---
 
-## Start MySQL
+## Configure Database
 
-Create the required database.
-
-Update every `application.properties` file:
+Update the database configuration in each service:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/food_order_db
@@ -247,7 +317,7 @@ spring.datasource.password=your_password
 
 ## Start ActiveMQ
 
-Ensure Apache ActiveMQ is running before starting the services.
+Ensure Apache ActiveMQ is running before starting the microservices.
 
 ---
 
@@ -260,7 +330,7 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-Run:
+Run the following services:
 
 - order-service
 - payment-service
@@ -281,9 +351,13 @@ npm run dev
 
 ---
 
-# 🧪 API Testing
+# 🧪 Testing
 
-The REST APIs were tested using **Postman**.
+The application was tested using:
+
+- Postman
+- REST APIs
+- MySQL
 
 ---
 
@@ -293,19 +367,28 @@ The REST APIs were tested using **Postman**.
 
 ---
 
-# 🔮 Future Improvements
+# 📈 Future Enhancements
 
 - JWT Authentication
-- Role-Based Access
-- API Gateway
-- Eureka Service Discovery
+- Role-Based Access Control
+- Swagger/OpenAPI Documentation
 - Docker
 - Kubernetes
-- Kafka
-- Redis
+- Spring Cloud Gateway
+- Eureka Service Discovery
+- Redis Caching
+- Apache Kafka
 - CI/CD Pipeline
-- Unit Testing
-- Swagger/OpenAPI Documentation
+- Unit & Integration Testing
+
+---
+
+# 📚 Documentation
+
+Additional project documentation:
+
+- `api_lld.md`
+- `database_design.md`
 
 ---
 
@@ -315,7 +398,7 @@ The REST APIs were tested using **Postman**.
 
 Java Full Stack Developer
 
-GitHub:
+GitHub
 
 https://github.com/Shanthoshg
 
@@ -323,4 +406,6 @@ https://github.com/Shanthoshg
 
 # ⭐ Support
 
-If you found this project useful, consider giving it a ⭐ on GitHub.
+If you found this project helpful, please consider giving it a ⭐ on GitHub.
+
+Thank you!
