@@ -365,31 +365,31 @@ The application was tested using:
 
 ## Dashboard
 
-![Dashboard](screenshots/home.png)
+![Dashboard](Screenshots/screenshotshome.png)
 
 ---
 
 ## Database
 
-![Database](screenshots/database.png)
+![Database](Screenshots/screenshotsdatabase.png)
 
 ---
 
 ## Camunda Workflow
 
-![Camunda](screenshots/camunda.png)
+![Camunda](Screenshots/screenshotscamunda.png)
 
 ---
 
 ## Project Structure
 
-![Project Structure](screenshots/project-structure.png)
+![Project Structure](Screenshots/screenshotsproject-structure.png)
 
 ---
 
 ## Running Frontend
 
-![Running](screenshots/run.png)
+![Running](Screenshots/screenshotsrun.png)
 
 # 📈 Future Enhancements
 
