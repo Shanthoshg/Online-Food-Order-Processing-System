@@ -1,124 +1,431 @@
-# API Low-Level Design (LLD) - Online Food Order Processing System
+# 🍕 FoodFlow Orchestrator - Online Food Order Processing System
 
-This document outlines the REST APIs and Queue Messaging contracts designed for the Food Order Processing System.
-
----
-
-## 1. REST Endpoints (Order Service - Port 8081)
-
-### A. Create Order
-Creates a new order, saves it to the database with status `PLACED`, and publishes an event to the ActiveMQ `order.created` queue.
-
-* **Endpoint:** `POST /api/orders`
-* **Content-Type:** `application/json`
-* **Request Payload:**
-```json
-{
-  "customerName": "John Doe",
-  "item": "Gourmet Pizza",
-  "amount": 15.99
-}
-```
-* **Response Status:** `201 Created`
-* **Response Payload:**
-```json
-{
-  "id": 1,
-  "customerName": "John Doe",
-  "item": "Gourmet Pizza",
-  "amount": 15.99,
-  "status": "PLACED",
-  "createdAt": "2026-07-04T10:30:00"
-}
-```
+> A Microservices-Based Food Order Processing System built using **Spring Boot**, **React**, **Camunda BPM**, **MySQL**, and **ActiveMQ** to automate and orchestrate the complete food ordering workflow.
 
 ---
 
-### B. Get All Orders
-Retrieves a list of all orders to populate the frontend real-time dashboard.
+## 📌 Project Overview
 
-* **Endpoint:** `GET /api/orders`
-* **Response Status:** `200 OK`
-* **Response Payload:**
-```json
-[
-  {
-    "id": 2,
-    "customerName": "Alice",
-    "item": "Smash Burger",
-    "amount": 9.99,
-    "status": "DELIVERED",
-    "createdAt": "2026-07-04T10:28:00"
-  },
-  {
-    "id": 1,
-    "customerName": "John Doe",
-    "item": "Gourmet Pizza",
-    "amount": 15.99,
-    "status": "PLACED",
-    "createdAt": "2026-07-04T10:30:00"
-  }
-]
+FoodFlow Orchestrator is a distributed food ordering application that demonstrates how modern microservices communicate to process customer orders.
+
+The system simulates the complete lifecycle of a food order—from order placement to payment processing, kitchen preparation, and delivery—using asynchronous messaging and workflow orchestration.
+
+This project was developed as a **Take-Home Assessment** to showcase backend development, workflow automation, microservices architecture, and frontend integration.
+
+---
+
+# 🚀 Features
+
+- ✅ Microservices Architecture
+- ✅ RESTful APIs
+- ✅ React Dashboard
+- ✅ Real-time Order Tracking
+- ✅ Camunda BPM Workflow
+- ✅ ActiveMQ Message Queue
+- ✅ MySQL Database
+- ✅ Order Management
+- ✅ Payment Processing
+- ✅ Kitchen Processing
+- ✅ Delivery Management
+- ✅ Spring Data JPA
+- ✅ Maven Build System
+
+---
+
+# 🏗️ System Architecture
+
+```
+                 React Frontend
+                       │
+                REST API Calls
+                       │
+               Order Service
+                       │
+             Camunda Workflow
+                       │
+      ┌──────────┬──────────────┐
+      │          │              │
+ Payment Service Kitchen Service Delivery Service
+      │          │              │
+      └──────────┴──────────────┘
+              ActiveMQ Queue
+                     │
+                 MySQL Database
 ```
 
 ---
 
-### C. Get Order Details
-Retrieves status and details for a single order.
+# 📂 Repository Structure
 
-* **Endpoint:** `GET /api/orders/{id}`
-* **Response Status:** `200 OK` (or `404 Not Found`)
-* **Response Payload:**
-```json
-{
-  "id": 1,
-  "customerName": "John Doe",
-  "item": "Gourmet Pizza",
-  "amount": 15.99,
-  "status": "PLACED",
-  "createdAt": "2026-07-04T10:30:00"
-}
+```
+Online-Food-Order-Processing-System
+│
+├── frontend/
+│
+├── order-service/
+│
+├── payment-service/
+│
+├── kitchen-service/
+│
+├── delivery-service/
+│
+├── api_lld.md
+│
+├── database_design.md
+│
+└── README.md
 ```
 
 ---
 
-## 2. ActiveMQ Queue Message Formats
+# 🛠️ Technologies Used
 
-### A. Queue: `order.created`
-Used to trigger the asynchronous workflow instantiation.
+## Backend
 
-* **Publisher:** Order Service
-* **Consumer:** Order Service (ActiveMQ Consumer Component)
-* **Message Type:** Simple text or Long (Serialized Object)
-* **Message Content:**
-```text
-1
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- Maven
+- REST APIs
+
+## Workflow
+
+- Camunda BPM
+- BPMN Process
+
+## Messaging
+
+- ActiveMQ
+
+## Frontend
+
+- React
+- Vite
+- CSS
+
+## Database
+
+- MySQL
+
+## Tools
+
+- Antigravity IDE
+- Git
+- GitHub
+- MySQL Workbench
+- Postman
+
+---
+
+# ⚙️ Microservices
+
+## 🛒 Order Service
+
+Responsible for:
+
+- Creating Orders
+- Managing Customer Requests
+- Starting Workflow
+- Publishing Events
+
+---
+
+## 💳 Payment Service
+
+Responsible for:
+
+- Payment Processing
+- Payment Status
+- Payment Validation
+
+---
+
+## 👨‍🍳 Kitchen Service
+
+Responsible for:
+
+- Preparing Orders
+- Kitchen Queue
+- Order Status
+
+---
+
+## 🚚 Delivery Service
+
+Responsible for:
+
+- Delivery Assignment
+- Delivery Tracking
+- Delivery Status Updates
+
+---
+
+# 🔄 Workflow
+
+Customer Places Order
+
+↓
+
+Order Service
+
+↓
+
+Camunda BPM starts Process
+
+↓
+
+Payment Service
+
+↓
+
+Kitchen Service
+
+↓
+
+Delivery Service
+
+↓
+
+Order Delivered
+
+---
+
+# 📸 Project Screenshots
+
+## 🏠 Dashboard
+
+The React dashboard provides a clean interface for placing new orders and monitoring the complete processing pipeline in real time.
+
+![Dashboard](screenshotshome.png)
+
+---
+
+## 🗄️ Database
+
+MySQL database showing successfully processed Orders, Kitchen Tickets, and Deliveries.
+
+![Database](screenshotsdatabase.png)
+
+---
+
+## ⚙️ Camunda Workflow Engine
+
+Camunda BPM integrated with Spring Boot orchestrating the order workflow.
+
+![Camunda](screenshotscamunda.png)
+
+---
+
+## 💻 Project Structure
+
+Project opened in Antigravity IDE showing all microservices and frontend modules.
+
+![Project Structure](screenshotsproject-structure.png)
+
+---
+
+## ▶️ Running Frontend
+
+Frontend running successfully using the Vite Development Server.
+
+![Frontend](screenshotsrun.png)
+
+---
+
+# 🗄️ Database
+
+Database Name
+
 ```
-*(Represents the raw `orderId` value)*
+food_order_db
+```
+
+Tables
+
+- orders
+- deliveries
+- kitchen_tickets
 
 ---
 
-## 3. Camunda External Task Topics
+# 📡 REST API
 
-### A. Topic: `payment-processing`
-* **Worker:** Payment Service
-* **Input Variables:** `orderId` (Long)
-* **Output Variables:** `paymentSuccess` (Boolean)
+## Order APIs
 
-### B. Topic: `kitchen-preparation`
-* **Worker:** Kitchen Service
-* **Input Variables:** `orderId` (Long)
-* **Output Variables:** None
+### Create Order
 
-### C. Topic: `delivery-service`
-* **Worker:** Delivery Service
-* **Input Variables:** `orderId` (Long)
-* **Output Variables:** None
+```
+POST /orders
+```
+
+### Get Orders
+
+```
+GET /orders
+```
 
 ---
 
-## 4. Error Handling & Edge Cases
+## Payment APIs
 
-1. **ActiveMQ Connection Failures:** JMS listener retry mechanisms will attempt reconnection if the ActiveMQ broker goes down temporarily.
-2. **Payment Failure Flow:** If the payment processor mocks a failure (triggered when the customer's name contains `"fail"` or `"cancel"`), the process sets `paymentSuccess = false`. Camunda uses an exclusive gateway to route the flow to the order status update task to mark it as `CANCELLED` and terminates gracefully.
-3. **Database Constraints:** All database operations use Spring Data JPA transactions (`@Transactional`), ensuring atomic commits and rollback in case of runtime exceptions.
+```
+POST /payments
+```
+
+```
+GET /payments
+```
+
+---
+
+## Kitchen APIs
+
+```
+POST /kitchen
+```
+
+```
+GET /kitchen
+```
+
+---
+
+## Delivery APIs
+
+```
+POST /deliveries
+```
+
+```
+GET /deliveries
+```
+
+---
+
+# ▶️ Running the Project
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Shanthoshg/Online-Food-Order-Processing-System.git
+```
+
+---
+
+## Backend
+
+Run each Spring Boot service individually.
+
+```
+order-service
+
+payment-service
+
+kitchen-service
+
+delivery-service
+```
+
+---
+
+## Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+Open
+
+```
+http://localhost:5173
+```
+
+---
+
+## Database
+
+1. Create MySQL Database
+
+```
+food_order_db
+```
+
+2. Update
+
+```
+application.properties
+```
+
+with your MySQL username and password.
+
+---
+
+## ActiveMQ
+
+Start ActiveMQ before running the services.
+
+Default URL
+
+```
+tcp://localhost:61616
+```
+
+---
+
+## Camunda
+
+Run the Order Service to start the Camunda engine.
+
+Access Camunda (if enabled):
+
+```
+http://localhost:8080/camunda
+```
+
+---
+
+# 📚 Documentation
+
+Additional documentation is included in:
+
+- api_lld.md
+- database_design.md
+
+---
+
+# 🎯 Future Enhancements
+
+- JWT Authentication
+- User Roles
+- Email Notifications
+- Docker Support
+- Kubernetes Deployment
+- CI/CD Pipeline
+- Swagger/OpenAPI Documentation
+- Payment Gateway Integration
+
+---
+
+# 👨‍💻 Author
+
+**Shanthosh G**
+
+Full Stack Java Developer
+
+**GitHub**
+
+https://github.com/Shanthoshg
+
+---
+
+# ⭐ Repository
+
+If you found this project useful, please consider giving it a ⭐ on GitHub.
+
+---
