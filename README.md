@@ -363,9 +363,33 @@ The application was tested using:
 
 # 📸 Screenshots
 
-> Screenshots will be added soon.
+## Dashboard
+
+![Dashboard](screenshots/home.png)
 
 ---
+
+## Database
+
+![Database](screenshots/database.png)
+
+---
+
+## Camunda Workflow
+
+![Camunda](screenshots/camunda.png)
+
+---
+
+## Project Structure
+
+![Project Structure](screenshots/project-structure.png)
+
+---
+
+## Running Frontend
+
+![Running](screenshots/run.png)
 
 # 📈 Future Enhancements
 
